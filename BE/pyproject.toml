@@ -1,0 +1,19 @@
+[project]
+name = "trialmatch"
+version = "0.1.0"
+description = "be app for trialmatch"
+authors = [
+    {name = "y"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi (>=0.115.12,<0.116.0)",
+    "uvicorn[standard] (>=0.34.3,<0.35.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

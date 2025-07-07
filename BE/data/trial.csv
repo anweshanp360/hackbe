@@ -1,0 +1,11 @@
+﻿trial_id,required_diagnosis_code,min_age,max_age,required_gender,required_biomarker_status,excluded_treatment,target_location_city
+T001,A01,55,70,Any,BM1,TreatmentA,Kolkata
+T002,A01,60,68,F,BM2,TreatmentB,Delhi
+T003,A01,58,65,M,BM3,TreatmentC,Mumbai
+T004,A01,59,70,Any,N/A,TreatmentD,Bangalore
+T005,A01,62,69,F,BM1,None,Chennai
+T006,A01,57,66,M,BM2,TreatmentA,Kolkata
+T007,A01,60,70,Any,BM3,TreatmentE,Delhi
+T008,A01,63,72,F,N/A,None,Mumbai
+T009,A01,55,67,M,BM1,TreatmentB,Bangalore
+T010,A01,61,70,Any,BM2,TreatmentD,Chennai

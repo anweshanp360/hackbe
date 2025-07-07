@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrialMatch AI POC Frontend</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fdfdfd;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        select {
+            width: calc(100% - 22px); /* Account for padding and border */
+            margin-bottom: 15px;
+            background-color: #fff;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2980b9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #ecf0f1;
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border-left: 5px solid #3498db;
+        }
+        #results-message {
+            font-style: italic;
+            color: #777;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .patient-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .patient-list-item:last-child {
+            border-bottom: none;
+        }
+        .patient-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TrialMatch AI POC Frontend</h1>
+        <p style="text-align: center; color: #666;">
+            This page interacts with your Flask backend to demonstrate patient-trial matching.
+            <br>Ensure your Flask app is running at <code>http://127.0.0.1:5000/</code>.
+        </p>
+
+        <div class="section">
+            <h2>1. Select a Clinical Trial</h2>
+            <label for="trial-select">Choose a Trial ID:</label>
+            <select id="trial-select">
+                <option value="">Loading trials...</option>
+            </select>
+            <button id="find-matches-btn">Find Matches for Selected Trial</button>
+            <div id="results-message"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Matched Patients</h2>
+            <ul id="matched-patients-list">
+                <li style="text-align: center; color: #777;">Matches will appear here after you select a trial and click "Find Matches".</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>3. All Dummy Patients (for reference)</h2>
+            <ul id="all-patients-list">
+                <li style="text-align: center; color: #777;">Loading all patients...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trialSelect = document.getElementById('trial-select');
+            const findMatchesBtn = document.getElementById('find-matches-btn');
+            const matchedPatientsList = document.getElementById('matched-patients-list');
+            const allPatientsList = document.getElementById('all-patients-list');
+            const resultsMessage = document.getElementById('results-message');
+
+            const API_BASE_URL = 'http://127.0.0.1:5000/api';
+
+            // Function to fetch and populate trials dropdown
+            async function fetchTrials() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trials`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const trials = await response.json();
+                    
+                    trialSelect.innerHTML = '<option value="">-- Select a Trial --</option>'; // Clear and add default
+                    if (trials.length === 0) {
+                        trialSelect.innerHTML = '<option value="">No trials found</option>';
+                        return;
+                    }
+                    trials.forEach(trial => {
+                        const option = document.createElement('option');
+                        option.value = trial.trial_id;
+                        option.textContent = `${trial.trial_id} (Diagnosis: ${trial.required_diagnosis_code}, Age: ${trial.min_age}-${trial.max_age})`;
+                        trialSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching trials:', error);
+                    resultsMessage.textContent = `Error loading trials: ${error.message}. Is the backend running?`;
+                    resultsMessage.classList.add('error-message');
+                    trialSelect.innerHTML = '<option value="">Error loading trials</option>';
+                }
+            }
+
+            // Function to fetch and display all patients
+            async function fetchAllPatients() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/patients`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const patients = await response.json();
+
+                    allPatientsList.innerHTML = ''; // Clear previous content
+                    if (patients.length === 0) {
+                        allPatientsList.innerHTML = '<li style="text-align: center; color: #777;">No patients found.</li>';
+                        return;
+                    }
+                    patients.forEach(patient => {
+                        const li = document.createElement('li');
+                        li.className = 'patient-list-item';
+                        li.innerHTML = `
+                            <strong>${patient.patient_id}</strong>
+                            <span class="patient-details">
+                                Age: ${patient.age}, Gender: ${patient.gender}, Diagnosis: ${patient.diagnosis_code}, City: ${patient.location_city}
+                            </span>
+                        `;
+                        allPatientsList.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error('Error fetching all patients:', error);
+                    allPatientsList.innerHTML = `<li class="error-message">Error loading patients: ${error.message}.</li>`;
+                }
+            }
+
+            // Function to find and display matches
+            async function findMatches() {
+                const selectedTrialId = trialSelect.value;
+                if (!selectedTrialId) {
+                    resultsMessage.textContent = 'Please select a trial first.';
+                    resultsMessage.classList.remove('error-message');
+                    return;
+                }
+
+                matchedPatientsList.innerHTML = '<li style="text-align: center; color: #777;">Searching for matches...</li>';
+                resultsMessage.textContent = ''; // Clear previous messages
+
+                try {
+                    // Use the rule-based matching endpoint for Day 2 testing
+                    const response = await fetch(`${API_BASE_URL}/match/${selectedTrialId}`);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error || 'Unknown error'}`);
+                    }
+                    const data = await response.json();
+
+                    matchedPatientsList.innerHTML = ''; // Clear previous content
+                    if (data.matched_patients && data.matched_patients.length > 0) {
+                        data.matched_patients.forEach(patient => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <strong>${patient.patient_id}</strong>
+                                <span class="patient-details">
+                                    (Age: ${patient.age}, Gender: ${patient.gender}, Diagnosis: ${patient.diagnosis_code}, City: ${patient.location_city})
+                                </span>
+                            `;
+                            matchedPatientsList.appendChild(li);
+                        });
+                        resultsMessage.textContent = `Found ${data.count} matches for Trial ${selectedTrialId}.`;
+                        resultsMessage.classList.remove('error-message');
+                    } else {
+                        matchedPatientsList.innerHTML = `<li style="text-align: center; color: #777;">No matches found for Trial ${selectedTrialId}.</li>`;
+                        resultsMessage.textContent = `No matches found for Trial ${selectedTrialId}.`;
+                        resultsMessage.classList.remove('error-message');
+                    }
+
+                } catch (error) {
+                    console.error('Error finding matches:', error);
+                    matchedPatientsList.innerHTML = `<li class="error-message">Error: ${error.message}</li>`;
+                    resultsMessage.textContent = `Error finding matches: ${error.message}`;
+                    resultsMessage.classList.add('error-message');
+                }
+            }
+
+            // Event Listeners
+            findMatchesBtn.addEventListener('click', findMatches);
+
+            // Initial data loads
+            fetchTrials();
+            fetchAllPatients();
+        });
+    </script>
+</body>
+</html>
