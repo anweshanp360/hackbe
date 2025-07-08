@@ -1,0 +1,95 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg
+*.whl
+dist/
+build/
+*.manifest
+*.spec
+
+# Editors and IDEs
+.idea/                  # JetBrains IDEs (PyCharm, IntelliJ, etc.)
+.vscode/                # VS Code (settings, tasks, launch configs - you might want to keep some if shared)
+*.swp                   # Vim swap files
+*.swo
+*.swn
+*~                      # Emacs backup files
+*.sublime-project
+*.sublime-workspace
+.DS_Store               # macOS specific files
+Thumbs.db               # Windows specific files
+
+# OS-specific files
+.DS_Store
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Virtual Environment
+# You should generally ignore your virtual environment directory.
+# Common names include 'env', 'venv', '.venv'. Choose one that you use.
+# If you have multiple, list them.
+venv/
+env/
+.venv/
+
+# Testing
+.coverage
+.coverage.*
+.nox/
+.tox/
+nosetests.xml
+coverage.xml
+htmlcov/
+.hypothesis/
+
+# Documentation
+docs/_build/
+
+# Jupyter Notebook / IPython
+.ipynb_checkpoints
+*.ipynb-filter
+*.mpy
+
+# PyInstaller / cx_Freeze / Nuitka
+# These are often used for creating standalone executables
+build/
+dist/
+__pyinstaller__/
+*.spec
+
+# MyPy
+.mypy_cache/
+
+# pytest
+.pytest_cache/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Temporary files
+*.tmp
+temp/
+
+# Sensitive data / configuration
+# It's good practice to keep sensitive data and local configuration out of git.
+# Consider using environment variables or a separate config file that is gitignored.
+config.ini.local  # Example: your local config file
+.env              # Common for environment variables (e.g., used by python-dotenv)
+*.pem             # Private keys
+*.key
