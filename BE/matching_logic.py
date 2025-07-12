@@ -1,29 +1,33 @@
-# ml_logic/match_trials.py
-import sys
-import json
+# matching_logic.py
 
-def run_ml_logic(patient_data, trial_data):
-    # Your ML logic goes here
-    # Example: Simple matching based on age and disease
-    matching_trials = []
-    for trial in trial_data:
-        # Implement your complex matching algorithm
-        if (patient_data.get('age') >= trial.get('min_age', 0) and
-            patient_data.get('age') <= trial.get('max_age', 200) and
-            patient_data.get('disease') == trial.get('disease_required')):
-            matching_trials.append(trial)
-    return matching_trials
+def match_trials(posted_data, trials_data):
+    """
+    Compares each posted item against trials and returns matching results.
+    Matching Rule: name matches and value >= min_value
+    """
+    if not trials_data or not posted_data:
+        return []
 
-if __name__ == '__main__':
-    # Read the JSON string from command-line arguments
-    input_data_str = sys.argv[1]
-    input_data = json.loads(input_data_str)
+    matching_results = []
 
-    patient = input_data['patient']
-    trials = input_data['trials']
+    for posted_item in posted_data:
+        posted_name = posted_item.get('name')
+        posted_value = posted_item.get('value')
 
-    # Perform the ML logic
-    results = run_ml_logic(patient, trials)
+        if posted_name is None or posted_value is None:
+            continue
 
-    # Print the result as a JSON string to stdout
-    print(json.dumps(results))
+        matches = [
+            trial for trial in trials_data
+            if trial.get('name') and trial.get('min_value') is not None
+            and trial['name'].lower() == posted_name.lower()
+            and posted_value >= trial['min_value']
+        ]
+
+        if matches:
+            matching_results.append({
+                "posted_data": posted_item,
+                "matches": matches
+            })
+
+    return matching_results
